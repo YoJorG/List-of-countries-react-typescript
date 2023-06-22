@@ -1,4 +1,4 @@
-import Card from './Card/Card'
+import Card from '../Card/Card'
 import { CountriesType } from '../../Types/Types'
 
 interface CardsInterface {

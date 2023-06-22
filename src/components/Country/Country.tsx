@@ -1,16 +1,56 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom'
+import LoadingIcon from '../UI/LoadingIcon'
 import { AiOutlineArrowLeft } from 'react-icons/ai'
 import { CountryType } from '../../Types/Types'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 
 interface Country {
 	country: CountryType
+	borders: string[]
+	bordered: {
+		fullNameBorder: string
+		border: string
+	}
 }
 
 export default function Country({ country }: Country) {
+	const [bordered, setBordered] = useState([])
+	const [loading, setLoading] = useState(true)
 	const navigate = useNavigate()
-	return (
-		<div className='mx-5 sm:mx-10 lg:mt-20'>
-			<div className='container mx-auto mt-5'>
+	const location = useLocation()
+
+	const getBorderFullName = async (border: string) => {
+		const data = await axios.get(`https://restcountries.com/v3.1/alpha/${border}?fields=name`)
+		let fullNameBorder = data.data.name.common.toLowerCase().replaceAll(' ', '-')
+		return { fullNameBorder, border }
+	}
+	const getBordersCountries = async (data: Country) => {
+		const borders = data.borders
+		const component: any = []
+		borders.map(async (border: string) => component.push(getBorderFullName(border)))
+
+		const results = await Promise.all(component)
+
+		return results
+	}
+	useEffect(() => {
+		setLoading(true)
+		const fetchData = async () => {
+			try {
+				const result = await getBordersCountries(country)
+				setBordered(result)
+				setLoading(false)
+			} catch (error) {
+				console.error(error)
+			}
+		}
+		fetchData()
+	}, [location])
+
+	return !loading ? (
+		<div className='mx-5 sm:mx-10 lg:mt-12'>
+			<div className='container mx-auto mt-2'>
 				<button
 					className='flex items-center py-2 px-4 mb-5 bg-gray-100 text-gray-900 dark:bg-slate-800 dark:text-gray-100 rounded-md shadow-md hover:bg-gray-200 hover:dark:bg-slate-700'
 					onClick={() => navigate(-1)}
@@ -78,24 +118,26 @@ export default function Country({ country }: Country) {
 						</p>
 					</div>
 
-					<div>
-						<h2 className='font-semibold md:text-lg mt-3'>
-							Border Countries:
-							{country.borders ? (
-								country.borders.map(borderCountry => (
-									<span className='font-light' key={borderCountry}>
-										{' ' +
-											borderCountry +
-											(country.borders![country.borders!.length - 1] === borderCountry ? '' : ', ')}
-									</span>
+					<div className='mt-3 '>
+						<p className='font-semibold md:text-lg mb-1'>Border Countries:</p>
+						<div className='flex gap-1 flex-wrap'>
+							{bordered && bordered.length ? (
+								bordered.map(bor => (
+									<Link to={'../' + bor.fullNameBorder} relative='path' key={bor.border} className=''>
+										<span className='font-light bg-slate-200 dark:bg-gray-950  py-1 px-2 rounded-md border-2 border-gray-300 hover:bg-gray-300  hover:dark:bg-gray-800 shadow-sm'>
+											{bor.border}
+										</span>
+									</Link>
 								))
 							) : (
-								<span className='font-light'> boundaries for me do not exist 😎</span>
+								<span>don't have</span>
 							)}
-						</h2>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	) : (
+		<LoadingIcon />
 	)
 }

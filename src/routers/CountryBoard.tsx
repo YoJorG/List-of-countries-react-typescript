@@ -2,11 +2,15 @@ import axios from 'axios'
 import { useLoaderData, useNavigation } from 'react-router-dom'
 // import LoadingIcon from '../src/components/UI/LoadingIcon'
 import { useEffect, useState } from 'react'
-import Country from '../src/components/Country/Country'
-import LoadingIcon from '../src/components/UI/LoadingIcon'
-import { CountryBoardType } from '../src/Types/Types'
-
-export async function loader({ request }: any) {
+import Country from '../components/Country/Country'
+import LoadingIcon from '../components/UI/LoadingIcon'
+import { CountryBoardType } from '../Types/Types'
+type RequestType = {
+	request: {
+		url: string
+	}
+}
+export async function loader({ request }: RequestType) {
 	const url = new URL(request.url)
 	const params = url.pathname.split('/')[2].replaceAll('-', ' ')
 	const { data } = await axios.get(
@@ -27,5 +31,5 @@ export default function CountryBoard() {
 		setLoadingStatus(loading)
 	}, [loading])
 
-	return <>{loadingStatus ? <LoadingIcon /> : <Country country={country} />}</>
+	return <Country country={country} />
 }

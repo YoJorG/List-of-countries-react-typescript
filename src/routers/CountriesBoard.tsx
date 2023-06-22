@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import FilterLabel from '../src/components/FilterLabel/FilterLabel'
-import Cards from '../src/components/Cards/Cards'
-import LoadingIcon from '../src/components/UI/LoadingIcon'
-import { CountariesBoardType } from '../src/Types/Types'
+import FilterLabel from '../components/FilterLabel/FilterLabel'
+import Cards from '../components/Cards/Cards'
+import LoadingIcon from '../components/UI/LoadingIcon'
+import { CountariesBoardType } from '../Types/Types'
 import { useLoaderData, useNavigation, useSearchParams } from 'react-router-dom'
 
 type RequestType = {
